@@ -16,7 +16,7 @@ build/
 # Environment variables
 .env
 
-# Model files
+# Model file
 *.pkl
 
 # Logs
