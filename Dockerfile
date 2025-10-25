@@ -13,3 +13,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 CMD ["python", "app.py"]
+
+#Has Python 3.10 installed
+#Contains the application code
+#Has all necessary dependencies
+#Runs Flask app on port 5000
+#Runs Flask app on port 5000
+
