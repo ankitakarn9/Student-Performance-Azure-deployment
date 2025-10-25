@@ -1,0 +1,63 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - student-performance-check
+
+on:
+  push:
+    branches:
+      - ankita-dev-2
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to container registry
+        uses: docker/login-action@v2
+        with:
+          registry: testdockerankita.azurecr.io/
+          username: ${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_36B14303BFF74EBFBDA0B7166B91B485 }}
+          password: ${{ secrets.AZUREAPPSERVICE_CONTAINERPASSWORD_856FC59F3A244DB785C0408032D8D2DB }}
+
+      - name: Build and push container image to registry
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: testdockerankita.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_36B14303BFF74EBFBDA0B7166B91B485 }}/testdockerankita/testdockerankita/mltest:${{ github.sha }}
+          file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    needs: build
+    
+    steps:
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0028E52EA5304421A771FF7C463F383A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5B79A6364814443496886FC23962C142 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A36B827D5E7A47898C4AB95E1E8030F8 }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'student-performance-check'
+          slot-name: 'Production'
+          images: 'testdockerankita.azurecr.io/${{ secrets.AZUREAPPSERVICE_CONTAINERUSERNAME_36B14303BFF74EBFBDA0B7166B91B485 }}/testdockerankita/testdockerankita/mltest:${{ github.sha }}'
+          
