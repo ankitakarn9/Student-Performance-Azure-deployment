@@ -39,6 +39,7 @@ def predict_datapoint():
     
 
 if __name__=="__main__":      
-    app.run(host="127.0.0.1", port=5000, debug=True)      
+    app.run(debug=True,host='0.0.0.0') #azure web app is not working on 127.0.0.1
+    #app.run(host="127.0.0.1", port=5000, debug=True)      
 
 
